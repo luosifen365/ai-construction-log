@@ -24,6 +24,4 @@ npm run dev
 
 需要配置 `DEEPSEEK_API_KEY` 环境变量。
 
-## 作者
 
-李思凡 - [GitHub](https://github.com/luosifen365)
