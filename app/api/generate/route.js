@@ -1,8 +1,21 @@
-// API 路由：调用 DeepSeek 生成施工日志
-// 部署后需要在 Vercel 环境变量 DEEPSEEK_API_KEY 中配置你的 API Key
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(request) {
   try {
+    // 频率限制：每个 IP 每小时 10 次
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || request.headers.get('x-real-ip')
+      || 'unknown';
+    const { allowed, remaining } = rateLimit(ip, 10);
+    if (!allowed) {
+      return Response.json({
+        error: `请求过于频繁，每小时限 ${10} 次，剩余 ${remaining} 次`,
+      }, {
+        status: 429,
+        headers: { 'X-RateLimit-Remaining': '0' },
+      });
+    }
+
     const { project, date, content, location, weather } = await request.json();
 
     if (!project || !date || !content) {
